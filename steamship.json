@@ -1,0 +1,43 @@
+{
+  "type": "app",
+  "name": "meeting-summary-app",
+  "handle": "meeting-summary-app",
+  "version": "0.0.3",
+  "description": "",
+  "author": "",
+  "entrypoint": "src.api.handler",
+  "configTemplate": {
+    "aws_access_key_id": {
+      "type": "string",
+      "description": "The bearer token used to authenticate with huggingface."
+    },
+    "aws_secret_access_key": {
+      "type": "string",
+      "description": "The url of the huggingface model that will be used for classification."
+    },
+    "aws_s3_bucket_name": {
+      "type": "string",
+      "description": "Email used to authenticate with Zendesk."
+    },
+    "aws_region": {
+      "type": "string",
+      "description": "Password used to authenticate with Zendesk.",
+      "default": "us-west-2"
+    },
+    "language_code": {
+      "type": "string",
+      "description": "Subdomain used to authenticate with Zendesk.",
+      "default": "en-US"
+    },
+     "oneai_api_key": {
+      "type": "string"
+    },
+    "oneai_skills": {
+      "type": "string"
+    },
+    "oneai_input_type": {
+      "type": "string",
+      "default": "auto-detect"
+    }
+  }
+}
