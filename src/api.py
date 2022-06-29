@@ -3,7 +3,7 @@ import base64
 from enum import Enum
 from typing import Any, Dict, List
 
-from steamship import File, PluginInstance, Steamship
+from steamship import File, PluginInstance, Steamship, MimeTypes
 from steamship.app import App, Response, create_handler, post
 from steamship.plugin.config import Config
 
@@ -24,6 +24,8 @@ class MeetingSummaryAppConfig(Config):
     aws_access_key_id: str
     aws_secret_access_key: str
     aws_s3_bucket_name: str
+    speaker_detection: bool = True
+    n_speakers: int = 5
     oneai_api_key: str
     oneai_skills: List[str]
     aws_region: str = "us-west-2"
@@ -53,6 +55,8 @@ class MeetingSummaryApp(App):
                 "aws_access_key_id": self.config.aws_access_key_id,
                 "aws_secret_access_key": self.config.aws_secret_access_key,
                 "aws_s3_bucket_name": self.config.aws_s3_bucket_name,
+                "speaker_detection": self.config.speaker_detection,
+                "n_speakers": self.config.n_speakers,
                 "aws_region": self.config.aws_region,
                 "language_code": self.config.language_code,
             },
@@ -69,10 +73,10 @@ class MeetingSummaryApp(App):
         ).data
 
     @post("transcribe")
-    def transcribe(self, audio: str) -> Response:
+    def transcribe(self, audio: str, mime_type: str = MimeTypes.MP3) -> Response:
         """Transcribe an audio file using Amazon Transcribe."""
         audio = base64.b64decode(audio.encode("utf-8"))
-        file = File.create(self.client, content=audio, mime_type="audio/mp3").data
+        file = File.create(self.client, content=audio, mime_type=mime_type).data
         file.blockify(plugin_instance=self.blockifier.handle).wait(
             max_timeout_s=300, retry_delay_s=30
         )
@@ -80,9 +84,9 @@ class MeetingSummaryApp(App):
         return Response(data=file.blocks[0].text)
 
     @post("summarize")
-    def summarize(self, audio: str) -> Response:
+    def summarize(self, audio: str, mime_type: str = MimeTypes.MP3) -> Response:
         """Summarize audio using Amazon Transcribe and OneAI skills."""
-        file = File.create(self.client, content=audio, mime_type="audio/mp3").data
+        file = File.create(self.client, content=audio, mime_type=mime_type).data
         file.blockify(plugin_instance=self.blockifier.handle).wait(
             max_timeout_s=300, retry_delay_s=30
         )

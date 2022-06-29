@@ -4,8 +4,8 @@ from steamship import App, AppInstance, Steamship
 
 from tests.utils import load_audio, load_config
 
-ENVIRONMENT = "test"
-APP_HANDLE = "meeting-summary-app"
+ENVIRONMENT = "prod"
+APP_HANDLE = "audio-analytics-app"
 
 
 def _get_app_instance():

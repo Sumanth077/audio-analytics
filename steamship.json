@@ -1,11 +1,14 @@
 {
   "type": "app",
-  "name": "meeting-summary-app",
-  "handle": "meeting-summary-app",
-  "version": "0.0.3",
+  "name": "audio-analytics-app",
+  "handle": "audio-analytics-app",
+  "version": "0.0.2",
   "description": "",
   "author": "",
   "entrypoint": "src.api.handler",
+  "build_config": {
+    "ignore": ["tests"]
+  },
   "configTemplate": {
     "aws_access_key_id": {
       "type": "string",
@@ -18,6 +21,14 @@
     "aws_s3_bucket_name": {
       "type": "string",
       "description": "Email used to authenticate with Zendesk."
+    },
+    "speaker_detection": {
+      "type": "boolean",
+      "description": "Enable speaker detection."
+    },
+    "n_speakers": {
+      "type": "number",
+      "description": "Expected number of speaker in the audio fragment."
     },
     "aws_region": {
       "type": "string",

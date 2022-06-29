@@ -27,7 +27,7 @@ from steamship import App, AppInstance, Steamship
 from pathlib import Path
 import base64
 
-APP_HANDLE = 'meeting-summary-app'
+APP_HANDLE = 'audio-analytics-app'
 PLUGIN_CONFIG = {
     "aws_access_key_id": "FILL_IN",
     "aws_secret_access_key": "FILL_IN",
