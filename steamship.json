@@ -1,54 +1,15 @@
 {
   "type": "app",
-  "name": "audio-analytics-app",
-  "handle": "audio-analytics-app",
-  "version": "0.0.2",
+  "name": "audio-analytics",
+  "handle": "audio-analytics",
+  "version": "0.1.2",
   "description": "",
   "author": "",
   "entrypoint": "src.api.handler",
   "build_config": {
-    "ignore": ["tests"]
+    "ignore": ["tests", "notebooks"]
   },
   "configTemplate": {
-    "aws_access_key_id": {
-      "type": "string",
-      "description": "The bearer token used to authenticate with huggingface."
-    },
-    "aws_secret_access_key": {
-      "type": "string",
-      "description": "The url of the huggingface model that will be used for classification."
-    },
-    "aws_s3_bucket_name": {
-      "type": "string",
-      "description": "Email used to authenticate with Zendesk."
-    },
-    "speaker_detection": {
-      "type": "boolean",
-      "description": "Enable speaker detection."
-    },
-    "n_speakers": {
-      "type": "number",
-      "description": "Expected number of speaker in the audio fragment."
-    },
-    "aws_region": {
-      "type": "string",
-      "description": "Password used to authenticate with Zendesk.",
-      "default": "us-west-2"
-    },
-    "language_code": {
-      "type": "string",
-      "description": "Subdomain used to authenticate with Zendesk.",
-      "default": "en-US"
-    },
-     "oneai_api_key": {
-      "type": "string"
-    },
-    "oneai_skills": {
-      "type": "string"
-    },
-    "oneai_input_type": {
-      "type": "string",
-      "default": "auto-detect"
-    }
+
   }
 }

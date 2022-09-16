@@ -1,10 +1,16 @@
 """App that summarizes meetings using Amazon Transcribe and OneAI skills."""
 import base64
+import json
+import pathlib
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Type, Optional
 
-from steamship import File, PluginInstance, Steamship, MimeTypes
+import requests
+import toml
+from pydantic import HttpUrl
+from steamship import File, PluginInstance, MimeTypes
 from steamship.app import App, Response, create_handler, post
+from steamship.base import Task, TaskState
 from steamship.plugin.config import Config
 
 PRIORITY_LABEL = "priority"
@@ -18,81 +24,88 @@ class OneAIInputType(str, Enum):
     AUTO = "auto-detect"
 
 
-class MeetingSummaryAppConfig(Config):
-    """Config object containing required configuration parameters to initialize a MeetingSummaryApp."""
-
-    aws_access_key_id: str
-    aws_secret_access_key: str
-    aws_s3_bucket_name: str
-    speaker_detection: bool = True
-    n_speakers: int = 5
-    oneai_api_key: str
-    oneai_skills: List[str]
-    aws_region: str = "us-west-2"
-    language_code: str = "en-US"
-    oneai_input_type: OneAIInputType = OneAIInputType.AUTO
-
-    def __init__(self, **kwargs):
-        if isinstance(kwargs.get("oneai_skills"), str):
-            kwargs["oneai_skills"] = kwargs["oneai_skills"].split(",")
-        super().__init__(**kwargs)
-
-
-class MeetingSummaryApp(App):
+class AudioAnalyticsApp(App):
     """App that transcribes and summarizes audio using Amazon Transcribe and OneAI skills."""
 
-    BLOCKIFIER_HANDLE = "amazon-s2t-blockifier"
-    TAGGER_HANDLE = "oneai-tagger"
+    YOUTUBE_FILE_IMPORTER_HANDLE = "youtube-file-importer"
+    ASSENBLYAI_BLOCKIFIER_HANDLE = "s2t-blockifier-default"
 
-    def __init__(self, client: Steamship, config: Dict[str, Any]):
-        super().__init__(client, config)
-        self.config = MeetingSummaryAppConfig(**self.config)
+    class AudioAnalyticsAppConfig(Config):
+        """Config object containing required configuration parameters to initialize a MeetingSummaryApp."""
+        pass
 
-        self.blockifier = PluginInstance.create(
-            client,
-            plugin_handle=self.BLOCKIFIER_HANDLE,
-            config={
-                "aws_access_key_id": self.config.aws_access_key_id,
-                "aws_secret_access_key": self.config.aws_secret_access_key,
-                "aws_s3_bucket_name": self.config.aws_s3_bucket_name,
-                "speaker_detection": self.config.speaker_detection,
-                "n_speakers": self.config.n_speakers,
-                "aws_region": self.config.aws_region,
-                "language_code": self.config.language_code,
-            },
+    def config_cls(self) -> Type[Config]:
+        """Return the Configuration class."""
+        return self.AudioAnalyticsAppConfig
+
+    def __init__(self, **kwargs):
+        secret_kwargs = toml.load(
+            str(pathlib.Path(__file__).parent / ".steamship" / "secrets.toml")
+        )
+        kwargs["config"] = {
+            **secret_kwargs,
+            **{k: v for k, v in kwargs["config"].items() if v != ""},
+        }
+        super().__init__(**kwargs)
+
+        self.youtube_importer = PluginInstance.create(
+            self.client,
+            plugin_handle=self.YOUTUBE_FILE_IMPORTER_HANDLE,
+            config={},
         ).data
 
-        self.tagger = PluginInstance.create(
-            client,
-            plugin_handle=self.TAGGER_HANDLE,
-            config={
-                "api_key": self.config.oneai_api_key,
-                "skills": ",".join(self.config.oneai_skills),
-                "input_type": self.config.oneai_input_type,
-            },
+        self.s2t_blockifier = PluginInstance.create(
+            self.client,
+            plugin_handle=self.ASSENBLYAI_BLOCKIFIER_HANDLE,
+            config={},
         ).data
 
-    @post("transcribe")
-    def transcribe(self, audio: str, mime_type: str = MimeTypes.MP3) -> Response:
-        """Transcribe an audio file using Amazon Transcribe."""
+    @post("analyze_youtube")
+    def analyze_youtube(self, url: HttpUrl) -> Response:
+        """Summarize video from youtube using AssemblyAI."""
+        file = File.create(self.client,
+                           plugin_instance=self.youtube_importer.handle,
+                           url=url).data
+        return self._analyze_audio_file(file)
+
+    @post("analyze_url")
+    def analyze_url(self, url: HttpUrl, mime_type: Optional[MimeTypes] = None) -> Response:
+        """Summarize audio from url using AssemblyAI."""
+        mime_type = mime_type or MimeTypes.MP3
+        file = File.create(self.client, content=requests.get(url).content, mime_type=mime_type).data
+        return self._analyze_audio_file(file)
+
+    @post("analyze")
+    def analyze(self, audio: str, mime_type: str = MimeTypes.MP3) -> Response:
+        """Summarize audio using AssemblyAI."""
         audio = base64.b64decode(audio.encode("utf-8"))
         file = File.create(self.client, content=audio, mime_type=mime_type).data
-        file.blockify(plugin_instance=self.blockifier.handle).wait(
-            max_timeout_s=300, retry_delay_s=30
-        )
-        file = file.refresh().data
-        return Response(data=file.blocks[0].text)
+        return self._analyze_audio_file(file)
 
-    @post("summarize")
-    def summarize(self, audio: str, mime_type: str = MimeTypes.MP3) -> Response:
-        """Summarize audio using Amazon Transcribe and OneAI skills."""
-        file = File.create(self.client, content=audio, mime_type=mime_type).data
-        file.blockify(plugin_instance=self.blockifier.handle).wait(
-            max_timeout_s=300, retry_delay_s=30
-        )
-        file.tag(plugin_instance=self.tagger.handle).wait()
-        file = file.refresh().data
-        return Response(data=[tag.dict() for block in file.blocks for tag in block.tags])
+    @post("get_file")
+    def get_file(self, task_id: str):
+        task = Task.get(self.client, _id=task_id).data
+        if task.state != TaskState.succeeded:
+            return Response(json={
+                "task_id": task.task_id,
+                "status": task.state
+            })
+        else:
+            file_id = json.loads(task.input)["id"]
+            file = File.get(self.client, file_id).data
+            return Response(json={
+                "task_id": task.task_id,
+                "status": task.state,
+                "file": file
+            })
+
+    def _analyze_audio_file(self, file) -> Response:
+        status = file.blockify(plugin_instance=self.s2t_blockifier.handle)
+        task = status.task
+        return Response(json={
+            "task_id": task.task_id,
+            "status": task.state
+        })
 
 
-handler = create_handler(MeetingSummaryApp)
+handler = create_handler(AudioAnalyticsApp)
