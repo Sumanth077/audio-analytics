@@ -1,2 +1,2 @@
-git+https://github.com/nludb/python-client@ec/task-get
+git+https://github.com/nludb/python-client@main
 toml
