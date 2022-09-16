@@ -1,0 +1,7 @@
+{
+  "aws_access_key_id": "FILL_IN",
+  "aws_secret_access_key": "FILL_IN",
+  "aws_s3_bucket_name": "FILL_IN",
+  "aws_region": "FILL_IN",
+  "zendesk_subdomain": "FILL_IN"
+}

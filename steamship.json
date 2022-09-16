@@ -1,0 +1,15 @@
+{
+  "type": "app",
+  "name": "audio-analytics",
+  "handle": "audio-analytics",
+  "version": "0.1.2",
+  "description": "",
+  "author": "",
+  "entrypoint": "src.api.handler",
+  "build_config": {
+    "ignore": ["tests", "notebooks"]
+  },
+  "configTemplate": {
+
+  }
+}

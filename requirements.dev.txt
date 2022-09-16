@@ -1,0 +1,8 @@
+pytest==7.0.0
+pre-commit==2.19.0
+pycln==1.3.2
+isort==5.10.1
+black==22.3.0
+scikit-learn==1.1.1
+tqdm==4.64.0
+nb_black==1.0.7
