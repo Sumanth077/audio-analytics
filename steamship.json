@@ -2,7 +2,7 @@
   "type": "app",
   "name": "audio-analytics",
   "handle": "audio-analytics",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "",
   "author": "",
   "entrypoint": "src.api.handler",

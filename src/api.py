@@ -3,12 +3,12 @@ import base64
 import json
 import pathlib
 from enum import Enum
-from typing import Type, Optional
+from typing import Optional, Type
 
 import requests
 import toml
 from pydantic import HttpUrl
-from steamship import File, PluginInstance, MimeTypes
+from steamship import File, MimeTypes, PluginInstance, Tag
 from steamship.app import App, Response, create_handler, post
 from steamship.base import Task, TaskState
 from steamship.plugin.config import Config
@@ -32,6 +32,7 @@ class AudioAnalyticsApp(App):
 
     class AudioAnalyticsAppConfig(Config):
         """Config object containing required configuration parameters to initialize a MeetingSummaryApp."""
+
         pass
 
     def config_cls(self) -> Type[Config]:
@@ -63,9 +64,7 @@ class AudioAnalyticsApp(App):
     @post("analyze_youtube")
     def analyze_youtube(self, url: HttpUrl) -> Response:
         """Summarize video from youtube using AssemblyAI."""
-        file = File.create(self.client,
-                           plugin_instance=self.youtube_importer.handle,
-                           url=url).data
+        file = File.create(self.client, plugin_instance=self.youtube_importer.handle, url=url).data
         return self._analyze_audio_file(file)
 
     @post("analyze_url")
@@ -86,26 +85,24 @@ class AudioAnalyticsApp(App):
     def get_file(self, task_id: str):
         task = Task.get(self.client, _id=task_id).data
         if task.state != TaskState.succeeded:
-            return Response(json={
-                "task_id": task.task_id,
-                "status": task.state
-            })
+            return Response(json={"task_id": task.task_id, "status": task.state})
         else:
             file_id = json.loads(task.input)["id"]
             file = File.get(self.client, file_id).data
-            return Response(json={
-                "task_id": task.task_id,
-                "status": task.state,
-                "file": file
-            })
+            return Response(json={"task_id": task.task_id, "status": task.state, "file": file})
+
+    @post("query_files")
+    def query_files(self, query: str) -> Response:
+        return Response(json=File.query(self.client, query).data.files)
+
+    @post("query_tags")
+    def query_tags(self, query: str) -> Response:
+        return Response(json=Tag.query(self.client, query).data.tags)
 
     def _analyze_audio_file(self, file) -> Response:
         status = file.blockify(plugin_instance=self.s2t_blockifier.handle)
         task = status.task
-        return Response(json={
-            "task_id": task.task_id,
-            "status": task.state
-        })
+        return Response(json={"task_id": task.task_id, "status": task.state})
 
 
 handler = create_handler(AudioAnalyticsApp)
