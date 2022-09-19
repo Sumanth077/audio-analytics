@@ -22,6 +22,7 @@ TEST_URL = "https://www.youtube.com/watch?v=Nu0WXRXUfAk"
 
 
 def check_analyze_response(app: Union[AudioAnalyticsApp, AppInstance], response):
+    """Verify the response returned by the analyse endpoint."""
     assert response.data is not None
     assert "task_id" in response.data
     assert "status" in response.data
@@ -70,6 +71,7 @@ def load_file(filename: Path) -> str:
 
 
 def upload_audio_file(file, mime_type):
+    """Upload an audio file to the default workspace."""
     media_format = mime_type.split("/")[1]
     unique_file_id = f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}-{uuid4()}.{media_format}"
     s3_client = Steamship(profile="staging")
@@ -101,6 +103,7 @@ def upload_audio_file(file, mime_type):
 
 
 def delete_files_in_space(client: Steamship) -> None:
+    """Delete all files in the workspace."""
     for file in File.list(client).data.files:
         file.delete()
 
@@ -108,6 +111,7 @@ def delete_files_in_space(client: Steamship) -> None:
 def check_query_response(
     response: Response, expected_type: Type[Union[File, Tag]], kind: str, name: str
 ) -> None:
+    """Verify the response returned by the query endpoint."""
     assert response.data is not None
     assert isinstance(response.data, list)
     assert len(response.data) > 0
@@ -122,6 +126,7 @@ def check_query_response(
 
 
 def prep_workspace(client: Steamship):
+    """Prepare workspace by removing all files and adding a test file."""
     delete_files_in_space(client)
     File.create(
         client,

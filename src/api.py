@@ -83,6 +83,7 @@ class AudioAnalyticsApp(App):
 
     @post("get_file")
     def get_file(self, task_id: str):
+        """Get a file created by a task using the task ID."""
         task = Task.get(self.client, _id=task_id).data
         if task.state != TaskState.succeeded:
             return Response(json={"task_id": task.task_id, "status": task.state})
@@ -93,10 +94,12 @@ class AudioAnalyticsApp(App):
 
     @post("query_files")
     def query_files(self, query: str) -> Response:
+        """Query the files in the workspace."""
         return Response(json=File.query(self.client, query).data.files)
 
     @post("query_tags")
     def query_tags(self, query: str) -> Response:
+        """Query the tags in the workspace."""
         return Response(json=Tag.query(self.client, query).data.tags)
 
     def _analyze_audio_file(self, file) -> Response:

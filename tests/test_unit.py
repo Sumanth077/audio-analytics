@@ -19,7 +19,7 @@ ENVIRONMENT = "staging"
 
 
 def test_analyze_youtube() -> None:
-    """Test import endpoint."""
+    """Test the analyze_youtube endpoint."""
     client = Steamship(profile=ENVIRONMENT, workspace="test")
     config = load_config()
 
@@ -30,6 +30,7 @@ def test_analyze_youtube() -> None:
 
 @pytest.mark.parametrize("file", INPUT_FILES)
 def test_analyze_url(file: Path) -> None:
+    """Test the analyze_url endpoint."""
     client = Steamship(profile=ENVIRONMENT, workspace="test")
     config = load_config()
     mime_type = "audio/mp3" if "mp3" in file.suffix else "video/mp4"
@@ -42,6 +43,7 @@ def test_analyze_url(file: Path) -> None:
 
 
 def test_query_files() -> None:
+    """Test the query_files endpoint."""
     client = Steamship(profile=ENVIRONMENT, workspace="test")
     config = load_config()
 
@@ -54,6 +56,7 @@ def test_query_files() -> None:
 
 
 def test_query_tags() -> None:
+    """Test the query_tags endpoint."""
     client = Steamship(profile=ENVIRONMENT, workspace="test")
     config = load_config()
 
