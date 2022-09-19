@@ -5,12 +5,12 @@ import time
 from datetime import datetime
 from functools import partial
 from pathlib import Path
-from typing import Any, Dict
-from typing import Union
+from typing import Any, Dict, List, Type, Union
 from uuid import uuid4
 
-from steamship import AppInstance, File
-from steamship import Steamship
+from pydantic import parse_obj_as
+from steamship import AppInstance, Block, File, Steamship, Tag
+from steamship.app import Response
 from steamship.base import TaskState
 from steamship.data.space import SignedUrl
 from steamship.utils.signed_urls import upload_to_signed_url
@@ -25,10 +25,17 @@ def check_analyze_response(app: Union[AudioAnalyticsApp, AppInstance], response)
     assert response.data is not None
     assert "task_id" in response.data
     assert "status" in response.data
-    assert response.data["status"] in (TaskState.succeeded, TaskState.failed, TaskState.running, TaskState.waiting)
+    assert response.data["status"] in (
+        TaskState.succeeded,
+        TaskState.failed,
+        TaskState.running,
+        TaskState.waiting,
+    )
 
     task_id = response.data["task_id"]
-    get_file = app.get_file if isinstance(app, AudioAnalyticsApp) else partial(app.post, path="get_file")
+    get_file = (
+        app.get_file if isinstance(app, AudioAnalyticsApp) else partial(app.post, path="get_file")
+    )
     response = get_file(task_id=task_id)
     n_retries = 0
     while n_retries <= 100 and response.data["status"] != TaskState.succeeded:
@@ -79,14 +86,45 @@ def upload_audio_file(file, mime_type):
     )
     audio_path = TEST_DATA / "inputs" / file
     upload_to_signed_url(writing_signed_url, filepath=audio_path)
-    reading_signed_url = (s3_client.get_space()
-                          .create_signed_url(
-        SignedUrl.Request(
-            bucket=SignedUrl.Bucket.APP_DATA,
-            filepath=unique_file_id,
-            operation=SignedUrl.Operation.READ,
+    reading_signed_url = (
+        s3_client.get_space()
+        .create_signed_url(
+            SignedUrl.Request(
+                bucket=SignedUrl.Bucket.APP_DATA,
+                filepath=unique_file_id,
+                operation=SignedUrl.Operation.READ,
+            )
         )
+        .data.signed_url
     )
-                          .data.signed_url
-                          )
     return reading_signed_url
+
+
+def delete_files_in_space(client: Steamship) -> None:
+    for file in File.list(client).data.files:
+        file.delete()
+
+
+def check_query_response(
+    response: Response, expected_type: Type[Union[File, Tag]], kind: str, name: str
+) -> None:
+    assert response.data is not None
+    assert isinstance(response.data, list)
+    assert len(response.data) > 0
+    if not isinstance(response.data[0], expected_type):
+        return_objects = parse_obj_as(List[expected_type], response.data)
+    else:
+        return_objects = response.data
+    assert isinstance(return_objects[0], expected_type)
+    tag = return_objects[0].tags[0] if expected_type is File else return_objects[0]
+    assert tag.kind == kind
+    assert tag.name == name
+
+
+def prep_workspace(client: Steamship):
+    delete_files_in_space(client)
+    File.create(
+        client,
+        tags=[Tag.CreateRequest(kind="test_file", name="file123")],
+        blocks=[Block.CreateRequest(tags=[Tag.CreateRequest(kind="test_block", name="block123")])],
+    )
