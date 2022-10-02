@@ -1,13 +1,13 @@
 {
   "type": "app",
-  "name": "audio-analytics",
   "handle": "audio-analytics",
-  "version": "0.1.4",
+  "version": "0.1.8",
+  "public": true,
   "description": "",
   "author": "",
   "entrypoint": "src.api.handler",
   "build_config": {
-    "ignore": ["tests", "notebooks"]
+    "ignore": ["tests", "notebooks", "examples"]
   },
   "configTemplate": {
 

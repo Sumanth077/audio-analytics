@@ -90,7 +90,7 @@ class AudioAnalyticsApp(App):
         else:
             file_id = json.loads(task.input)["id"]
             file = File.get(self.client, file_id).data
-            return Response(json={"task_id": task.task_id, "status": task.state, "file": file})
+            return Response(json={"task_id": task.task_id, "status": task.state, "file": file.dict()})
 
     @post("query_files")
     def query_files(self, query: str) -> Response:
