@@ -1,1 +1,1 @@
-"""App that automatically prioritises Zendesk tickets using a pretrained HF model."""
+"""Package that transcribes, analyses, and indexes audio and video."""
