@@ -5,9 +5,8 @@ from typing import List, Optional, Type
 import requests
 from pydantic import HttpUrl
 from steamship import File, MimeTypes, Tag
-from steamship.app import Invocable, InvocableResponse, create_handler, post
 from steamship.base import Task, TaskState
-from steamship.plugin.config import Config
+from steamship.invocable import Invocable, Config, InvocableResponse, post, create_handler
 
 PRIORITY_LABEL = "priority"
 
@@ -15,8 +14,8 @@ PRIORITY_LABEL = "priority"
 class AudioAnalyticsApp(Invocable):
     """Package that transcribes and summarizes audio."""
 
-    YOUTUBE_FILE_IMPORTER_HANDLE = "youtube-file-importer"
-    S2T_BLOCKIFIER_HANDLE = "s2t-blockifier-default"
+    YOUTUBE_FILE_IMPORTER_HANDLE = "youtube-file-importer2"
+    S2T_BLOCKIFIER_HANDLE = "s2t-blockifier-assembly"
 
     class AudioAnalyticsAppConfig(Config):
         """Config object containing required configuration parameters to initialize a AudioAnalyticsApp."""
@@ -52,10 +51,10 @@ class AudioAnalyticsApp(Invocable):
 
     @post("analyze_url")
     def analyze_url(
-        self,
-        url: HttpUrl,
-        mime_type: Optional[MimeTypes] = None,
-        tags: Optional[List[FileTag]] = None,
+            self,
+            url: HttpUrl,
+            mime_type: Optional[MimeTypes] = None,
+            tags: Optional[List[FileTag]] = None,
     ) -> InvocableResponse:
         """Transcribe and analyze audio from a publicly available URL."""
         mime_type = mime_type or MimeTypes.MP3

@@ -1,15 +1,41 @@
 {
   "type": "app",
   "handle": "audio-analytics",
-  "version": "0.2.7",
+  "version": "2.2.0",
   "public": true,
-  "description": "",
+  "description": "Package to transcribe and tag audio using language AI.",
   "author": "",
   "entrypoint": "src.api.handler",
   "build_config": {
-    "ignore": ["tests", "notebooks", "examples"]
+    "ignore": [
+      "tests",
+      "notebooks",
+      "examples"
+    ]
   },
   "configTemplate": {
-
+  },
+  "steamshipRegistry": {
+    "tagline": "Entity tag, summarize, analyze, generate, and parse audio.",
+    "tagline2": "Just load audio from Youtube or a URL into Steamship ...",
+    "usefulFor": "Useful for indexing your audio with language AI.",
+    "videoUrl": null,
+    "githubUrl": "https://github.com/steamship-packages/audio-analytics/",
+    "demoUrl": null,
+    "blogUrl": null,
+    "jupyterUrl": null,
+    "authorName": "Steamship",
+    "authorEmail": "hello@steamship.com",
+    "authorTwitter": "@GetSteamship",
+    "authorUrl": "https://www.steamship.com/",
+    "tags": [
+      "NLP",
+      "Transcription",
+      "Parsing",
+      "Summarization",
+      "NER",
+      "Sentiment Analysis",
+      "Intent Classification"
+    ]
   }
 }

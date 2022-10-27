@@ -7,7 +7,7 @@ from steamship import Steamship
 
 from tests import TEST_DATA
 
-ENVIRONMENT = "prod"
+ENVIRONMENT = "staging"
 PACKAGE_HANDLE = "audio-analytics"
 
 
