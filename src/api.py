@@ -14,8 +14,8 @@ PRIORITY_LABEL = "priority"
 class AudioAnalyticsApp(Invocable):
     """Package that transcribes and summarizes audio."""
 
-    YOUTUBE_FILE_IMPORTER_HANDLE = "youtube-file-importer2"
-    S2T_BLOCKIFIER_HANDLE = "s2t-blockifier-assembly"
+    YOUTUBE_FILE_IMPORTER_HANDLE = "youtube-file-importer"
+    S2T_BLOCKIFIER_HANDLE = "s2t-blockifier-default"
 
     class AudioAnalyticsAppConfig(Config):
         """Config object containing required configuration parameters to initialize a AudioAnalyticsApp."""
