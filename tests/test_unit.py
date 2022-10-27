@@ -29,7 +29,9 @@ def test_analyze_youtube(audio_analytics_app: AudioAnalyticsApp) -> None:
 
 
 @pytest.mark.parametrize("file", INPUT_FILES)
-def test_analyze_url(steamship_client: Steamship, file: Path, audio_analytics_app: AudioAnalyticsApp) -> None:
+def test_analyze_url(
+    steamship_client: Steamship, file: Path, audio_analytics_app: AudioAnalyticsApp
+) -> None:
     """Test the analyze_url endpoint."""
     mime_type = "audio/mp3" if "mp3" in file.suffix else "video/mp4"
 

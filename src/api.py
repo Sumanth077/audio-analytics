@@ -6,7 +6,7 @@ import requests
 from pydantic import HttpUrl
 from steamship import File, MimeTypes, Tag
 from steamship.base import Task, TaskState
-from steamship.invocable import Invocable, Config, InvocableResponse, post, create_handler
+from steamship.invocable import Config, Invocable, InvocableResponse, create_handler, post
 
 PRIORITY_LABEL = "priority"
 
@@ -51,10 +51,10 @@ class AudioAnalyticsApp(Invocable):
 
     @post("analyze_url")
     def analyze_url(
-            self,
-            url: HttpUrl,
-            mime_type: Optional[MimeTypes] = None,
-            tags: Optional[List[FileTag]] = None,
+        self,
+        url: HttpUrl,
+        mime_type: Optional[MimeTypes] = None,
+        tags: Optional[List[FileTag]] = None,
     ) -> InvocableResponse:
         """Transcribe and analyze audio from a publicly available URL."""
         mime_type = mime_type or MimeTypes.MP3

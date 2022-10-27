@@ -84,30 +84,22 @@ def upload_audio_file(client: Steamship, file: Path, mime_type: str) -> str:
     unique_file_id = f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}-{uuid4()}.{media_format}"
     workspace = Workspace.get(client=client)
 
-    writing_signed_url = (
-        workspace
-        .create_signed_url(
-            SignedUrl.Request(
-                bucket=SignedUrl.Bucket.APP_DATA,
-                filepath=unique_file_id,
-                operation=SignedUrl.Operation.WRITE,
-            )
+    writing_signed_url = workspace.create_signed_url(
+        SignedUrl.Request(
+            bucket=SignedUrl.Bucket.APP_DATA,
+            filepath=unique_file_id,
+            operation=SignedUrl.Operation.WRITE,
         )
-        .signed_url
-    )
+    ).signed_url
     audio_path = TEST_DATA / "inputs" / file
     upload_to_signed_url(writing_signed_url, filepath=audio_path)
-    reading_signed_url = (
-        workspace
-        .create_signed_url(
-            SignedUrl.Request(
-                bucket=SignedUrl.Bucket.APP_DATA,
-                filepath=unique_file_id,
-                operation=SignedUrl.Operation.READ,
-            )
+    reading_signed_url = workspace.create_signed_url(
+        SignedUrl.Request(
+            bucket=SignedUrl.Bucket.APP_DATA,
+            filepath=unique_file_id,
+            operation=SignedUrl.Operation.READ,
         )
-        .signed_url
-    )
+    ).signed_url
     return reading_signed_url
 
 
