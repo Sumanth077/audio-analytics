@@ -1,7 +1,7 @@
-# Steamship Audio Analytics Package 
+# Audio Analytics Package
 
-This project contains a Steamship App creates a search endpoint over audio files capable of filtering through
-transcript, entities, and semtiments.
+This project contains a Steamship Package that creates a search endpoint over audio files capable of filtering through
+transcript, entities, and sentiments.
 
 ## Usage
 
@@ -11,16 +11,16 @@ from steamship import Steamship, Tag
 instance = Steamship.use("audio-analytics", "my-workspace-name")
 
 url = "<url to mp3 file>"
-analyze_task = instance.post("analyze_url", url=url).data
+analyze_task = instance.invoke("analyze_url", url=url).data
 
 # Wait for completion
-# See: examples/audio-analytics-python-client.demo.ipynb for example
+# See: examples/audio-analytics-python-client-demo.ipynb to see hows
 
 # Query audio contents
 # Note: more examples in examples/audio-analytics-python-client.demo.ipynb
 query_tags = Tag.query(
     instance.client, 'kind "entity" and overlaps { kind "sentiment" and name "NEGATIVE" }'
-).data.tags
+).tags
 unique_entities = {tag.name for tag in query_tags}
 print(
     f"There are {len(unique_entities)} people who have been referenced in a negative context:"

@@ -1,16 +1,15 @@
 """Collection of utility function to support testing."""
 import base64
-import json
 import time
 from datetime import datetime
 from functools import partial
 from pathlib import Path
-from typing import Any, Dict, List, Type, Union
+from typing import List, Type, Union
 from uuid import uuid4
 
 from pydantic import parse_obj_as
-from steamship import AppInstance, Block, File, Steamship, Tag
-from steamship.app import Response
+from steamship import Block, File, PackageInstance, Steamship, Tag
+from steamship.app import InvocableResponse
 from steamship.base import TaskState
 from steamship.data.space import SignedUrl
 from steamship.utils.signed_urls import upload_to_signed_url
@@ -21,36 +20,32 @@ from tests import TEST_DATA
 TEST_URL = "https://www.youtube.com/watch?v=Nu0WXRXUfAk"
 
 
-def check_analyze_response(app: Union[AudioAnalyticsApp, AppInstance], response):
-    """Verify the response returned by the analyse endpoint."""
-    assert response.data is not None
-    assert "task_id" in response.data
-    assert "status" in response.data
-    assert response.data["status"] in (
-        TaskState.succeeded,
-        TaskState.failed,
-        TaskState.running,
-        TaskState.waiting,
-    )
+def check_analyze_response(package: Union[AudioAnalyticsApp, PackageInstance], response):
+    """Verify the response returned by the analyze endpoint."""
+    response = _check_analyze_response(response)
 
-    task_id = response.data["task_id"]
-    get_file = (
-        app.get_file if isinstance(app, AudioAnalyticsApp) else partial(app.post, path="get_file")
+    task_id = response["task_id"]
+    get_status = (
+        package.get_status
+        if isinstance(package, AudioAnalyticsApp)
+        else partial(package.invoke, path="status")
     )
-    response = get_file(task_id=task_id)
+    response = get_status(task_id=task_id)
+    response = response.data if not isinstance(response, dict) else response
     n_retries = 0
-    while n_retries <= 100 and response.data["status"] != TaskState.succeeded:
-        response = get_file(task_id=task_id)
+    while n_retries <= 100 and response["status"] not in (TaskState.succeeded, TaskState.failed):
         time.sleep(2)
+        response = get_status(task_id=task_id)
+        response = _check_analyze_response(response)
+        n_retries += 1
 
-    assert response.data is not None
-    assert "task_id" in response.data
-    assert "status" in response.data
-    assert response.data["status"] == TaskState.succeeded
-    assert "file" in response.data
-    file = response.data["file"]
+    file = response["file"]
 
     file = File.parse_obj(file) if not isinstance(file, File) else file
+    _check_file(file)
+
+
+def _check_file(file):
     assert file.blocks is not None
     assert len(file.blocks) > 0
     block = file.blocks[0]
@@ -58,9 +53,20 @@ def check_analyze_response(app: Union[AudioAnalyticsApp, AppInstance], response)
     assert len(block.tags) > 0
 
 
-def load_config() -> Dict[str, Any]:
-    """Load config from test data."""
-    return json.load((TEST_DATA / "config.json").open())
+def _check_analyze_response(response):
+    response = response.data if not isinstance(response, dict) else response
+    assert response is not None
+    assert "task_id" in response
+    assert "status" in response
+    assert response["status"] in (
+        TaskState.succeeded,
+        TaskState.failed,
+        TaskState.running,
+        TaskState.waiting,
+    )
+    if response["status"] == TaskState.succeeded:
+        assert "file" in response
+    return response
 
 
 def load_file(filename: Path) -> str:
@@ -70,13 +76,12 @@ def load_file(filename: Path) -> str:
         return base64.b64encode(f.read()).decode("utf-8")
 
 
-def upload_audio_file(file, mime_type):
+def upload_audio_file(client: Steamship, file: Path, mime_type: str) -> str:
     """Upload an audio file to the default workspace."""
     media_format = mime_type.split("/")[1]
     unique_file_id = f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}-{uuid4()}.{media_format}"
-    s3_client = Steamship(profile="staging")
     writing_signed_url = (
-        s3_client.get_space()
+        client.get_space()
         .create_signed_url(
             SignedUrl.Request(
                 bucket=SignedUrl.Bucket.APP_DATA,
@@ -84,12 +89,12 @@ def upload_audio_file(file, mime_type):
                 operation=SignedUrl.Operation.WRITE,
             )
         )
-        .data.signed_url
+        .signed_url
     )
     audio_path = TEST_DATA / "inputs" / file
     upload_to_signed_url(writing_signed_url, filepath=audio_path)
     reading_signed_url = (
-        s3_client.get_space()
+        client.get_space()
         .create_signed_url(
             SignedUrl.Request(
                 bucket=SignedUrl.Bucket.APP_DATA,
@@ -97,28 +102,23 @@ def upload_audio_file(file, mime_type):
                 operation=SignedUrl.Operation.READ,
             )
         )
-        .data.signed_url
+        .signed_url
     )
     return reading_signed_url
 
 
-def delete_files_in_space(client: Steamship) -> None:
-    """Delete all files in the workspace."""
-    for file in File.list(client).data.files:
-        file.delete()
-
-
 def check_query_response(
-    response: Response, expected_type: Type[Union[File, Tag]], kind: str, name: str
+    response: InvocableResponse, expected_type: Type[Union[File, Tag]], kind: str, name: str
 ) -> None:
     """Verify the response returned by the query endpoint."""
-    assert response.data is not None
-    assert isinstance(response.data, list)
-    assert len(response.data) > 0
-    if not isinstance(response.data[0], expected_type):
-        return_objects = parse_obj_as(List[expected_type], response.data)
+    response = response.data if not isinstance(response, list) else response
+    assert response is not None
+    assert isinstance(response, list)
+    assert len(response) > 0
+    if not isinstance(response[0], expected_type):
+        return_objects = parse_obj_as(List[expected_type], response)
     else:
-        return_objects = response.data
+        return_objects = response
     assert isinstance(return_objects[0], expected_type)
     tag = return_objects[0].tags[0] if expected_type is File else return_objects[0]
     assert tag.kind == kind
@@ -127,7 +127,8 @@ def check_query_response(
 
 def prep_workspace(client: Steamship):
     """Prepare workspace by removing all files and adding a test file."""
-    delete_files_in_space(client)
+    for file in File.query(client, tag_filter_query="all").files:
+        file.delete()
     File.create(
         client,
         tags=[Tag.CreateRequest(kind="test_file", name="file123")],

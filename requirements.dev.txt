@@ -6,3 +6,11 @@ black==22.3.0
 scikit-learn==1.1.1
 tqdm==4.64.0
 nb_black==1.0.7
+flake8-bandit==3.0.0
+flake8-bugbear==22.4.25
+flake8-comprehensions==3.8.0
+flake8-mutable==1.2.0
+flake8-pytest-style==1.6.0
+flake8-rst-docstrings==0.2.5
+flake8-use-fstring==1.3
+flake8==4.0.1

@@ -1,7 +1,7 @@
 {
   "type": "app",
   "handle": "audio-analytics",
-  "version": "0.1.8",
+  "version": "0.2.7",
   "public": true,
   "description": "",
   "author": "",
