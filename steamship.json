@@ -11,5 +11,20 @@
   },
   "configTemplate": {
 
+  },
+  "steamshipRegistry": {
+    "tagline": "Search audio for topics and sentiments.",
+    "tagline2": "Quickly sort through recordings of podcasts, meetings, or other content you have.",
+    "usefulFor": "Useful for anyone who building software that interacts with audio data. Add better visibility into that data in minutes.",
+    "videoUrl": "https://www.youtube.com/watch?v=WCjmyOjG92c&t=1s",
+    "githubUrl": "https://github.com/steamship-packages/audio-analytics-app",
+    "demoUrl": "https://joe-rogan-index.streamlitapp.com/",
+    "blogUrl": "https://medium.com/steamship/im-consuming-5000-hours-of-joe-rogan-with-the-help-of-ai-9cb7cc7a4985",
+    "jupyterUrl": "https://github.com/steamship-packages/audio-analytics-app/blob/main/examples/audio-analytics-python-client-demo.ipynb",
+    "authorName": "Steamship",
+    "authorEmail": "hello@steamship.com",
+    "authorTwitter": "@GetSteamship",
+    "authorUrl": "https://www.steamship.com/",
+    "tags": ["Audio", "Markdown", "Blogging", "Whisper", "S2T", "Transcription"]
   }
 }
