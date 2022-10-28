@@ -25,6 +25,6 @@
     "authorEmail": "hello@steamship.com",
     "authorTwitter": "@GetSteamship",
     "authorUrl": "https://www.steamship.com/",
-    "tags": ["Audio", "Markdown", "Blogging", "Whisper", "S2T", "Transcription"]
+    "tags": ["Audio", "Search", "Entity Recognition", "Podcasts", "Sentiment", "Summarization"]
   }
 }
