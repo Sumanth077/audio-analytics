@@ -1,5 +1,5 @@
 {
-  "type": "app",
+  "type": "package",
   "handle": "audio-analytics",
   "version": "2.2.0",
   "public": true,
