@@ -1,7 +1,7 @@
 {
   "type": "package",
   "handle": "audio-analytics",
-  "version": "2.2.0",
+  "version": "0.2.7",
   "public": true,
   "description": "Package to transcribe and tag audio using language AI.",
   "author": "",
@@ -14,28 +14,21 @@
     ]
   },
   "configTemplate": {
+
   },
   "steamshipRegistry": {
-    "tagline": "Entity tag, summarize, analyze, generate, and parse audio.",
-    "tagline2": "Just load audio from Youtube or a URL into Steamship ...",
-    "usefulFor": "Useful for indexing your audio with language AI.",
-    "videoUrl": null,
-    "githubUrl": "https://github.com/steamship-packages/audio-analytics/",
-    "demoUrl": null,
-    "blogUrl": null,
-    "jupyterUrl": null,
+    "tagline": "Search audio for topics and sentiments.",
+    "tagline2": "Quickly sort through recordings of podcasts, meetings, or other content you have.",
+    "usefulFor": "Useful for anyone who building software that interacts with audio data. Add better visibility into that data in minutes.",
+    "videoUrl": "https://www.youtube.com/watch?v=WCjmyOjG92c&t=1s",
+    "githubUrl": "https://github.com/steamship-packages/audio-analytics-app",
+    "demoUrl": "https://joe-rogan-index.streamlitapp.com/",
+    "blogUrl": "https://medium.com/steamship/im-consuming-5000-hours-of-joe-rogan-with-the-help-of-ai-9cb7cc7a4985",
+    "jupyterUrl": "https://github.com/steamship-packages/audio-analytics-app/blob/main/examples/audio-analytics-python-client-demo.ipynb",
     "authorName": "Steamship",
     "authorEmail": "hello@steamship.com",
     "authorTwitter": "@GetSteamship",
     "authorUrl": "https://www.steamship.com/",
-    "tags": [
-      "NLP",
-      "Transcription",
-      "Parsing",
-      "Summarization",
-      "NER",
-      "Sentiment Analysis",
-      "Intent Classification"
-    ]
+    "tags": ["Audio", "Search", "Entity Recognition", "Podcasts", "Sentiment", "Summarization"]
   }
 }
