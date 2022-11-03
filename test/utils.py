@@ -4,6 +4,7 @@ import time
 from datetime import datetime
 from functools import partial
 from pathlib import Path
+from test import TEST_DATA
 from typing import List, Type, Union
 from uuid import uuid4
 
@@ -15,7 +16,6 @@ from steamship.invocable import InvocableResponse
 from steamship.utils.signed_urls import upload_to_signed_url
 
 from src.api import AudioAnalyticsApp
-from test import TEST_DATA
 
 TEST_URL = "https://www.youtube.com/watch?v=Nu0WXRXUfAk"
 

@@ -1,10 +1,5 @@
 """Test audio-analytics package via integration test."""
 from pathlib import Path
-from typing import Any, Dict
-
-import pytest
-from steamship import File, PackageInstance, Steamship
-
 from test import INPUT_FILES
 from test.conftest import PACKAGE_HANDLE
 from test.utils import (
@@ -14,6 +9,10 @@ from test.utils import (
     prep_workspace,
     upload_audio_file,
 )
+from typing import Any, Dict
+
+import pytest
+from steamship import File, PackageInstance, Steamship
 
 
 @pytest.fixture()

@@ -1,11 +1,5 @@
 """Test zendesk-ticket-urgency via unit test."""
 from pathlib import Path
-from typing import Any, Dict
-
-import pytest
-from steamship import File, Steamship
-
-from src.api import AudioAnalyticsApp
 from test import INPUT_FILES
 from test.utils import (
     TEST_URL,
@@ -14,6 +8,12 @@ from test.utils import (
     prep_workspace,
     upload_audio_file,
 )
+from typing import Any, Dict
+
+import pytest
+from steamship import File, Steamship
+
+from src.api import AudioAnalyticsApp
 
 
 @pytest.fixture()
