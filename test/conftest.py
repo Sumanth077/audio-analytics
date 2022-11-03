@@ -1,13 +1,12 @@
 """Pytest configuration and shared fixtures."""
 import json
+from test import TEST_DATA
 from typing import Any, Dict
 
 import pytest
 from steamship import Steamship
 
-from tests import TEST_DATA
-
-ENVIRONMENT = "prod"
+ENVIRONMENT = "staging"
 PACKAGE_HANDLE = "audio-analytics"
 
 

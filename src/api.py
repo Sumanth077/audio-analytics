@@ -5,9 +5,8 @@ from typing import List, Optional, Type
 import requests
 from pydantic import HttpUrl
 from steamship import File, MimeTypes, Tag
-from steamship.app import Invocable, InvocableResponse, create_handler, post
 from steamship.base import Task, TaskState
-from steamship.plugin.config import Config
+from steamship.invocable import Config, Invocable, InvocableResponse, create_handler, post
 
 PRIORITY_LABEL = "priority"
 

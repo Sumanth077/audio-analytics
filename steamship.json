@@ -1,13 +1,17 @@
 {
-  "type": "app",
+  "type": "package",
   "handle": "audio-analytics",
   "version": "0.2.7",
   "public": true,
-  "description": "",
+  "description": "Package to transcribe and tag audio using language AI.",
   "author": "",
   "entrypoint": "src.api.handler",
   "build_config": {
-    "ignore": ["tests", "notebooks", "examples"]
+    "ignore": [
+      "tests",
+      "notebooks",
+      "examples"
+    ]
   },
   "configTemplate": {
 

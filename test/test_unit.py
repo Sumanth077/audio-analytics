@@ -1,19 +1,19 @@
-"""Test zendesk-ticket-urgency via unit tests."""
+"""Test zendesk-ticket-urgency via unit test."""
 from pathlib import Path
-from typing import Any, Dict
-
-import pytest
-from steamship import File, Steamship
-
-from src.api import AudioAnalyticsApp
-from tests import INPUT_FILES
-from tests.utils import (
+from test import INPUT_FILES
+from test.utils import (
     TEST_URL,
     check_analyze_response,
     check_query_response,
     prep_workspace,
     upload_audio_file,
 )
+from typing import Any, Dict
+
+import pytest
+from steamship import File, Steamship
+
+from src.api import AudioAnalyticsApp
 
 
 @pytest.fixture()
@@ -29,7 +29,9 @@ def test_analyze_youtube(audio_analytics_app: AudioAnalyticsApp) -> None:
 
 
 @pytest.mark.parametrize("file", INPUT_FILES)
-def test_analyze_url(steamship_client: Steamship, file: Path, audio_analytics_app: AudioAnalyticsApp) -> None:
+def test_analyze_url(
+    steamship_client: Steamship, file: Path, audio_analytics_app: AudioAnalyticsApp
+) -> None:
     """Test the analyze_url endpoint."""
     mime_type = "audio/mp3" if "mp3" in file.suffix else "video/mp4"
 

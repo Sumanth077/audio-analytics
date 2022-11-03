@@ -4,18 +4,18 @@ import time
 from datetime import datetime
 from functools import partial
 from pathlib import Path
+from test import TEST_DATA
 from typing import List, Type, Union
 from uuid import uuid4
 
 from pydantic import parse_obj_as
-from steamship import Block, File, PackageInstance, Steamship, Tag
-from steamship.app import InvocableResponse
+from steamship import Block, File, PackageInstance, Steamship, Tag, Workspace
 from steamship.base import TaskState
-from steamship.data.space import SignedUrl
+from steamship.data.workspace import SignedUrl
+from steamship.invocable import InvocableResponse
 from steamship.utils.signed_urls import upload_to_signed_url
 
 from src.api import AudioAnalyticsApp
-from tests import TEST_DATA
 
 TEST_URL = "https://www.youtube.com/watch?v=Nu0WXRXUfAk"
 
@@ -39,6 +39,8 @@ def check_analyze_response(package: Union[AudioAnalyticsApp, PackageInstance], r
         response = _check_analyze_response(response)
         n_retries += 1
 
+    assert response["status"] == TaskState.succeeded
+    assert "file" in response
     file = response["file"]
 
     file = File.parse_obj(file) if not isinstance(file, File) else file
@@ -80,30 +82,24 @@ def upload_audio_file(client: Steamship, file: Path, mime_type: str) -> str:
     """Upload an audio file to the default workspace."""
     media_format = mime_type.split("/")[1]
     unique_file_id = f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}-{uuid4()}.{media_format}"
-    writing_signed_url = (
-        client.get_space()
-        .create_signed_url(
-            SignedUrl.Request(
-                bucket=SignedUrl.Bucket.APP_DATA,
-                filepath=unique_file_id,
-                operation=SignedUrl.Operation.WRITE,
-            )
+    workspace = Workspace.get(client=client)
+
+    writing_signed_url = workspace.create_signed_url(
+        SignedUrl.Request(
+            bucket=SignedUrl.Bucket.APP_DATA,
+            filepath=unique_file_id,
+            operation=SignedUrl.Operation.WRITE,
         )
-        .signed_url
-    )
+    ).signed_url
     audio_path = TEST_DATA / "inputs" / file
     upload_to_signed_url(writing_signed_url, filepath=audio_path)
-    reading_signed_url = (
-        client.get_space()
-        .create_signed_url(
-            SignedUrl.Request(
-                bucket=SignedUrl.Bucket.APP_DATA,
-                filepath=unique_file_id,
-                operation=SignedUrl.Operation.READ,
-            )
+    reading_signed_url = workspace.create_signed_url(
+        SignedUrl.Request(
+            bucket=SignedUrl.Bucket.APP_DATA,
+            filepath=unique_file_id,
+            operation=SignedUrl.Operation.READ,
         )
-        .signed_url
-    )
+    ).signed_url
     return reading_signed_url
 
 
