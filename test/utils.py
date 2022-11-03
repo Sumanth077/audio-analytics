@@ -15,7 +15,7 @@ from steamship.invocable import InvocableResponse
 from steamship.utils.signed_urls import upload_to_signed_url
 
 from src.api import AudioAnalyticsApp
-from tests import TEST_DATA
+from test import TEST_DATA
 
 TEST_URL = "https://www.youtube.com/watch?v=Nu0WXRXUfAk"
 

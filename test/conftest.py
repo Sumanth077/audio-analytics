@@ -5,7 +5,7 @@ from typing import Any, Dict
 import pytest
 from steamship import Steamship
 
-from tests import TEST_DATA
+from test import TEST_DATA
 
 ENVIRONMENT = "staging"
 PACKAGE_HANDLE = "audio-analytics"

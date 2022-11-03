@@ -1,4 +1,4 @@
-"""Test zendesk-ticket-urgency via unit tests."""
+"""Test zendesk-ticket-urgency via unit test."""
 from pathlib import Path
 from typing import Any, Dict
 
@@ -6,8 +6,8 @@ import pytest
 from steamship import File, Steamship
 
 from src.api import AudioAnalyticsApp
-from tests import INPUT_FILES
-from tests.utils import (
+from test import INPUT_FILES
+from test.utils import (
     TEST_URL,
     check_analyze_response,
     check_query_response,
