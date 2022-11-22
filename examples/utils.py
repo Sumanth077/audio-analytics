@@ -5,7 +5,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from steamship import Steamship
-from steamship.data.space import SignedUrl
+from steamship.data.workspace import SignedUrl
 from steamship.utils.signed_urls import upload_to_signed_url
 
 
@@ -14,7 +14,7 @@ def upload_audio_file(client: Steamship, filepath: Path, mime_type: str):
     file_extension = mime_type.split("/")[1]
     unique_file_id = f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}-{uuid4()}.{file_extension}"
     writing_signed_url = (
-        client.get_space()
+        client.get_workspace()
         .create_signed_url(
             SignedUrl.Request(
                 bucket=SignedUrl.Bucket.APP_DATA,
@@ -26,7 +26,7 @@ def upload_audio_file(client: Steamship, filepath: Path, mime_type: str):
     )
     upload_to_signed_url(writing_signed_url, filepath=filepath)
     reading_signed_url = (
-        client.get_space()
+        client.get_workspace()
         .create_signed_url(
             SignedUrl.Request(
                 bucket=SignedUrl.Bucket.APP_DATA,
